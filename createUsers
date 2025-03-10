@@ -1,0 +1,41 @@
+-- Tabla mTipoUsuario
+CREATE TABLE mTipoUsuario (
+    idTipoUsuario INT PRIMARY KEY IDENTITY(1,1), -- Llave primaria autoincremental
+    tipo NVARCHAR(50) NOT NULL, -- Nombre del tipo de usuario
+    descripcion NVARCHAR(255) NULL -- Descripción opcional del tipo de usuario
+);
+
+-- Inserts para la tabla mTipoUsuario
+INSERT INTO mTipoUsuario (tipo, descripcion)
+VALUES 
+    ('Escuela', 'Usuarios asociados a instituciones educativas'),
+    ('Aliado', 'Usuarios que colaboran como socios o aliados estratégicos'),
+    ('Administrador', 'Usuarios encargados de la administración del sistema');
+
+-- Tabla mUsuarios
+CREATE TABLE mUsuarios (
+    idUsuario INT PRIMARY KEY IDENTITY(1,1), -- Llave primaria autoincremental
+    nombre NVARCHAR(100) NOT NULL, -- Nombre del usuario
+    email NVARCHAR(150) NOT NULL UNIQUE, -- El email debe ser único
+    activo BIT DEFAULT 1, -- Indicador de usuario activo
+    idTipoUsuario INT NOT NULL, -- Relación con mTipoUsuario
+    FOREIGN KEY (idTipoUsuario) REFERENCES mTipoUsuario(idTipoUsuario) -- Llave foránea hacia mTipoUsuario
+);
+
+-- Tabla dUsuarios
+CREATE TABLE dUsuarios (
+    idDetalle INT PRIMARY KEY IDENTITY(1,1), -- Llave primaria autoincremental
+    idUsuario INT NOT NULL, -- Llave foránea que apunta a mUsuarios
+    descripcion NVARCHAR(255), -- Descripción del detalle
+    direccion NVARCHAR(255) NULL, -- Columna opcional para dirección
+    fechaRegistro DATETIME DEFAULT GETDATE(), -- Fecha de registro automática
+    FOREIGN KEY (idUsuario) REFERENCES mUsuarios(idUsuario) -- Relación con mUsuarios
+);
+
+-- Tabla mCredenciales
+CREATE TABLE mCredenciales (
+    idCredencial INT PRIMARY KEY IDENTITY(1,1), -- Llave primaria autoincremental
+    idUsuario INT NOT NULL, -- Llave foránea que apunta a mUsuarios
+    contrasena NVARCHAR(255) NOT NULL, -- Contraseña encriptada
+    FOREIGN KEY (idUsuario) REFERENCES mUsuarios(idUsuario) -- Relación con mUsuarios
+);
