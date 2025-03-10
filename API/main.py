@@ -3,8 +3,6 @@ from config.models.User import UserInDB
 from config.models.Token import Token, TokenData
 from config.models.ListaCodigoProductos import ListaCodigoProductos
 
-
-
 from typing import List
 from config.models.responsesProducto import Producto, ProductoExtendido, ProductoPrecioExist, Inventario, ProductoCotizacion
  """
