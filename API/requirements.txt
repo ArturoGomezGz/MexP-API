@@ -1,0 +1,10 @@
+#pip install -r requirements.txt 
+
+fastapi
+uvicorn[standard]
+pyodbc
+python-jose
+passlib[argon2]
+pydantic
+python-multipart
+
