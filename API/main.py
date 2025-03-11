@@ -27,7 +27,7 @@ app = FastAPI()
 
 @app.get("/")
 def wellcome():
-    return {"message": "la eylin es gay"}
+    return {"message": "Bienvanido a la api de Mexicanos Primero"}
 
 @app.post("/token")
 def get_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
