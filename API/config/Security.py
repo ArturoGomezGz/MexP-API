@@ -25,57 +25,40 @@ class Security:
         # Usamos el método hash de Argon2
         return self.pwdContext.hash(password)
 
-    def login(self, user: str, password: str):
+    def login(self, email: str, password: str):
         try:
-            USUARIO = self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios WHERE username = ?", (user,))
-            if USUARIO and self.verifyPwd(password, USUARIO[0]["password_hash"]):
+            USUARIO = self.conexion.sQueryGET("EXEC mexicanosPrimero.dbo.getUserCredentials ?", (email,))
+            if USUARIO and self.verifyPwd(password, USUARIO[0]["contrasena"]):
                 return True
             else:
                 return False
         except Exception as e:
             return None
 
-    def changePassword(self, user: str, newPassword: str):
+    def changePassword(self, email: str, newPassword: str):
         try:
-            self.conexion.sQuery("UPDATE MrApi.dbo.Usuarios SET password_hash = ? WHERE username = ?", (self.hashPwd(newPassword), user))
+            self.conexion.sQuery("EXEC mexicanosPrimero.dbo.changePassword ?, ?", (email, self.hashPwd(newPassword)))
         except Exception as e:
-            print(e)
             return False
         return True
 
-    def createUser(self, username: str, correo: str, password: str, id_role: int):
+    def createUser(self, email: str, name: str, password: str, rol: str):
         try:
             # Verificar que el usuario no exista
-            if self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios WHERE username = ?", (username,)):
+            if self.conexion.sQueryGET("EXEC ", (email,)):
                 raise HTTPException(status_code=400, detail="Usuario ya existe")
             
             # VEriificar que el correo no exista
-            if self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios WHERE correo = ?", (correo,)):
+            if self.conexion.sQueryGET("EXEC mexicanosPrimero.dbo.getUsuario ?", (email,)):
                 raise HTTPException(status_code=400, detail="Correo ya registrado")
-
-            # Verificar que el rol sea válido
-            ids_roles = [int(r["id_rol"]) for r in self.getRoles()]
-            if id_role not in ids_roles:
-                raise HTTPException(status_code=400, detail="Rol no válido")
             
             # Crear el usuario
-            self.conexion.sQuery(f"""
-            INSERT INTO [MrApi].[dbo].[Usuarios]
-                ([username]
-                ,[correo]
-                ,[password_hash]
-                ,[id_rol]
-                ,[id_estado])
-            VALUES
-                (?,?,?,?,?)
-            """,
-            (username, correo, self.hashPwd(password),id_role,1)
-            )
+            self.conexion.sQuery("EXEC mexicanosPrimero.dbo.insertUsuario ?,?,?,?", (email, name, self.hashPwd(password), rol))
         except Exception:
             raise HTTPException(status_code=500, detail="Error interno")
-        return {"message": f"Usuario {username} creado exitosamente"}
+        return {"message": f"Usuario {email} creado exitosamente"}
 
-    def deleteUser(self, user: str):
+    """ def deleteUser(self, user: str):
         try:
             self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios WHERE username = ?", (user,))
             if not user:
@@ -84,14 +67,15 @@ class Security:
             return {"message": f"Usuario {user} eliminado exitosamente"}
         except Exception as e:
             print(e)
-            raise HTTPException(status_code=500, detail="Error interno")
+            raise HTTPException(status_code=500, detail="Error interno") """
 
-    def createToken(self, usuario: str, contrasena: str) -> Token:
+    def createToken(self, email: str, contrasena: str) -> Token:
         try:
-            if self.login(usuario, contrasena):
-                rol = self.conexion.sQueryGET("SELECT id_rol FROM MrApi.dbo.Usuarios WHERE username = ?", (usuario,))[0]["id_rol"]
-                correo = self.conexion.sQueryGET("SELECT correo FROM MrApi.dbo.Usuarios WHERE username = ?", (usuario,))[0]["correo"]
-                to_encode = {"sub": usuario, "id_rol": rol, "correo": correo}
+            if self.login(email, contrasena):
+                usuario = self.conexion.sQueryGET("EXEC mexicanosPrimero.dbo.getUsuario ?", (email))[0]
+                rol = usuario["tipoUsuario"]
+                correo = usuario["email"]
+                to_encode = {"email": correo, "rol": rol}
                 expire = datetime.utcnow() + timedelta(days=self.tokenExpirationDays)
                 to_encode.update({"exp": expire})
                 encoded_jwt = jwt.encode(to_encode, self.secretKey, algorithm=self.algorithm)
@@ -106,17 +90,30 @@ class Security:
     def verifyToken(self, token: str):
         try:
             payload = jwt.decode(token, self.secretKey, algorithms=[self.algorithm])
-            username: str = payload.get("sub")
-            rol: str = payload.get("id_rol")
-            correo: str = payload.get("correo")
-            if username is None or rol is None:
+            correo: str = payload.get("email")
+            rol: str = payload.get("rol")
+            if correo is None or rol is None:
                 raise HTTPException(status_code=403, detail="Token missing required fields")
-            token_data = TokenData(username=username, user_role=rol, correo=correo)
+            token_data = TokenData(correo=correo, rol=rol)
         except JWTError as e:
             raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
         return token_data
+    
+    def getRole(self, token: str):
+        try:
+            return self.verifyToken(token).rol
+        except HTTPException as e:
+            raise e
+        
+    def roleRequired(self, token: str, requiredRoles: list[str]):
+        try:
+            userRole = self.getRole(token)
+            if userRole not in requiredRoles:
+                raise HTTPException(status_code=403, detail="Unauthorized")
+        except HTTPException as e:
+            raise e
 
-    def changeRole(self, user: str, newRole: str):
+    """ def changeRole(self, user: str, newRole: str):
         try:
             # Validación de roles permitidos
             roles = self.getRoles()
@@ -147,22 +144,9 @@ class Security:
             raise e
         except Exception:
             # En caso de un error inesperado, lanzamos una excepción genérica
-            raise HTTPException(status_code=500, detail="Error interno")
+            raise HTTPException(status_code=500, detail="Error interno") 
 
-    def getUsers(self):
-        try:
-            return self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios")
-        except Exception:
-            raise HTTPException(status_code=500, detail="Error interno")
-
-    def getRoles(self):
-        try:
-            return self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Roles")
-        except Exception:
-            raise HTTPException(status_code=500, detail="Error interno")
-
-    def getRoleName(self, id_rol: int):
         try:
             return self.conexion.sQueryGET("SELECT nombre_rol FROM MrApi.dbo.Roles WHERE id_rol = ?", (id_rol,))[0]["nombre_rol"]
         except Exception:
-            raise HTTPException(status_code=500, detail="Error interno")
+            raise HTTPException(status_code=500, detail="Error interno")"""
