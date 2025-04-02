@@ -1,9 +1,9 @@
 {
     "Master": {
-        "server" : "THINKPAD-E14",
-        "database" : "Master",
-        "usuario" : "sa",
-        "contrasena" : "password",
-        "port": 3306
+        "server" : "localhost",
+        "database" : "MexicanosPrimero",
+        "usuario" : "postgres",
+        "contrasena" : "Pword76",
+        "port": 5432
     }
 }

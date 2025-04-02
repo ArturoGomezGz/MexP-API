@@ -45,12 +45,8 @@ class Security:
     def createUser(self, email: str, name: str, password: str, rol: str):
         try:
             # Verificar que el usuario no exista
-            if self.conexion.sQueryGET("EXEC ", (email,)):
+            if self.conexion.sQueryGET("SELECT * FROM usuarios WHERE correo = ? ", (email,)):
                 raise HTTPException(status_code=400, detail="Usuario ya existe")
-            
-            # VEriificar que el correo no exista
-            if self.conexion.sQueryGET("EXEC mexicanosPrimero.dbo.getUsuario ?", (email,)):
-                raise HTTPException(status_code=400, detail="Correo ya registrado")
             
             # Crear el usuario
             self.conexion.sQuery("EXEC mexicanosPrimero.dbo.insertUsuario ?,?,?,?", (email, name, self.hashPwd(password), rol))
