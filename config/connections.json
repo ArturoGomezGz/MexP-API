@@ -1,6 +1,6 @@
 {
     "Master": {
-        "server" : "THINKPAD-E14",
+        "server" : "10.43.111.244",
         "database" : "Master",
         "usuario" : "sa",
         "contrasena" : "password",
