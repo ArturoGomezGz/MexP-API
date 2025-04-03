@@ -30,28 +30,3 @@ class Resource:
     
     """
     
-    def obtener_usuario(self, email):
-        try:
-            retultado = self.conexion.sQueryGET("""SELECT * FROM obtener_usuario(?);""", params=(email))
-
-            if not retultado:
-                raise HTTPException(status_code=404, detail=f"El usuario con email {email} no existe")
-
-        except HTTPException as e:
-            raise e
-        except Exception as e:
-            logging.error(f"Error al eliminar cotización: {str(e)}")
-            raise HTTPException(status_code=500, detail="Error al eliminar cotización")
-
-    def insertar_usuario(self, nombre, correo, direccion, tipoUsuario, password):
-        try:
-            resultado = self.conexion.sQueryGET("""SELECT insertar_usuario(?,?,?,?,? );""",
-            params=(nombre, correo, direccion, tipoUsuario, password))
-            if not resultado:
-                raise HTTPException(status_code=404, detail=f"El usuario con email {email} no existe")
-            return resultado[0]
-        except HTTPException as e:
-            raise e
-        except Exception as e:
-            logging.error(f"Error al eliminar cotización: {str(e)}")
-            raise HTTPException(status_code=500, detail="Error al eliminar cotización")
