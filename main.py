@@ -68,7 +68,3 @@ def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_requir
 @app.get("/user/{email}")
 def get_user_data(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.getUsusrio(email)
-
-app.get("/minions", tags=["Minions"])
-def get_minions():
-    return "minions chúpenme el pene"
