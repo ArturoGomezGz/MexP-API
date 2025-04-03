@@ -11,7 +11,7 @@ class Conexion:
             self.dbPort = jsonBaseDeDatos["port"]
 
             self.conexion = pyodbc.connect(
-                f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+                f"DRIVER={{PostgreSQL Unicode}};"
                 f"SERVER={self.dbServer};"
                 f"DATABASE={self.dbDatabase};"
                 f"UID={self.dbUsuario};"
