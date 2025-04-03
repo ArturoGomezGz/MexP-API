@@ -1,9 +1,9 @@
 {
     "Master": {
         "server" : "10.43.111.244",
-        "database" : "Master",
-        "usuario" : "sa",
-        "contrasena" : "password",
-        "port": 3306
+        "database" : "MexicanosPrimero",
+        "usuario" : "postgres",
+        "contrasena" : "Pword76",
+        "port": 5432
     }
 }
