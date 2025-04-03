@@ -109,40 +109,11 @@ class Security:
         except HTTPException as e:
             raise e
 
-    """ def changeRole(self, user: str, newRole: str):
+    def getUsusrio(self, mail):
         try:
-            # Validación de roles permitidos
-            roles = self.getRoles()
-            valid_roles = [r["nombre_rol"] for r in roles]
-
-            # Obtener el id del nuevo rol
-            id_rol = self.conexion.sQueryGET("SELECT id_rol FROM MrApi.dbo.Roles WHERE nombre_rol = ?", (newRole,))[0]["id_rol"]
-
-            if newRole not in valid_roles:
-                raise HTTPException(status_code=400, detail="Rol no válido")
-
-            # Consultar si el usuario existe
-            usuario = self.conexion.sQueryGET("SELECT * FROM MrApi.dbo.Usuarios WHERE username = ?", (user,))
+            usuario = self.conexion.sQueryGET("SELECT obtener_usuario(?)", (mail,))
             if not usuario:
                 raise HTTPException(status_code=404, detail="Usuario no encontrado")
-            
-            # Actualizar el rol del usuario
-            result = self.conexion.sQuery("UPDATE MrApi.dbo.Usuarios SET rol = ? WHERE username = ?", (id_rol, user))
-            
-            # Verificar que el cambio fue exitoso (al menos una fila debe ser afectada)
-            if result == 0:
-                raise HTTPException(status_code=400, detail="No se pudo actualizar el rol")
-
-            return {"message": f"Rol de {user} cambiado a {newRole} exitosamente"}
-
-        except HTTPException as e:
-            # Re-lanzamos excepciones HTTP con el mensaje adecuado
-            raise e
-        except Exception:
-            # En caso de un error inesperado, lanzamos una excepción genérica
-            raise HTTPException(status_code=500, detail="Error interno") 
-
-        try:
-            return self.conexion.sQueryGET("SELECT nombre_rol FROM MrApi.dbo.Roles WHERE id_rol = ?", (id_rol,))[0]["nombre_rol"]
-        except Exception:
-            raise HTTPException(status_code=500, detail="Error interno")"""
+            return usuario[0]
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error interno")

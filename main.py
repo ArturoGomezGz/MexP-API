@@ -29,7 +29,11 @@ app = FastAPI()
 def wellcome():
     return {"message": "Bienvanido a la api de Mexicanos Primero"}
 
-@app.post("/token")
+@app.get("/usuario/{email}")
+def usuario(email: str):
+    return dataSourceSesion.getUsusrio(email)
+
+""" @app.post("/token")
 def get_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return securitySesion.createToken(form_data.username, form_data.password)
 
@@ -43,4 +47,4 @@ def change_password(new_password, user_data: TokenData = Depends(role_required()
 
 @app.get("/user/{email}")
 def get_user_data(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
-    return dataSourceSesion.obtener_usuario(email)
+    return dataSourceSesion.obtener_usuario(email) """
