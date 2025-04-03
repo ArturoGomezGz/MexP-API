@@ -47,6 +47,10 @@ SELECT u.id, u.nombre, u.correo, u.direccion
 FROM usuarios u
 WHERE u.tipo_usuario_id = (SELECT id FROM tipo_usuarios WHERE nombre = 'Aliado');
 
+------------------------------------------------------
+-- Funciones para gestionar usuarios y credenciales --
+------------------------------------------------------
+
 -- Función para insertar un usuario y sus credenciales
 CREATE OR REPLACE FUNCTION insertar_usuario(
     p_nombre VARCHAR,
@@ -66,5 +70,49 @@ BEGIN
     -- Insertar la contraseña en la tabla credenciales
     INSERT INTO credenciales (usuario_id, password_hash)
     VALUES (v_usuario_id, p_password_hash);
+END;
+$$ LANGUAGE plpgsql;
+
+-- Funcion para obtener informacion de un usuario por email
+CREATE OR REPLACE FUNCTION obtener_usuario(p_correo VARCHAR)
+RETURNS TABLE(id INT, nombre VARCHAR, correo VARCHAR, direccion TEXT, tipo_usuario VARCHAR) AS $$
+BEGIN
+    RETURN QUERY
+    SELECT u.id, u.nombre, u.correo, u.direccion, tu.nombre AS tipo_usuario
+    FROM usuarios u
+    JOIN tipo_usuarios tu ON u.tipo_usuario_id = tu.id
+    WHERE u.correo = p_correo;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Funcion para cambiar la contrasena de un usuario por email
+CREATE OR REPLACE FUNCTION cambiar_contrasena(p_correo VARCHAR, p_nueva_password_hash TEXT)
+RETURNS VOID AS $$
+DECLARE
+    v_usuario_id INT;
+BEGIN
+    -- Buscar el usuario por correo
+    SELECT id INTO v_usuario_id FROM usuarios WHERE correo = p_correo;
+
+    -- Si el usuario existe, actualizar la contrasena
+    IF v_usuario_id IS NOT NULL THEN
+        UPDATE credenciales SET password_hash = p_nueva_password_hash WHERE usuario_id = v_usuario_id;
+    END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Funcion para obtener la contrasena de un usuario por email
+CREATE OR REPLACE FUNCTION obtener_contrasena(p_correo VARCHAR)
+RETURNS TEXT AS $$
+DECLARE
+    v_password_hash TEXT;
+BEGIN
+    -- Obtener el hash de la contrasena del usuario
+    SELECT c.password_hash INTO v_password_hash 
+    FROM credenciales c 
+    JOIN usuarios u ON c.usuario_id = u.id
+    WHERE u.correo = p_correo;
+
+    RETURN v_password_hash;
 END;
 $$ LANGUAGE plpgsql;
