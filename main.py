@@ -66,5 +66,5 @@ def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_requir
     return securitySesion.changeRol(email, rol)
 
 @app.get("/user/{email}")
-def get_user_data(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
+def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.getUsusrio(email)
