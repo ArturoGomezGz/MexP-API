@@ -7,6 +7,32 @@ class Resource:
     def __init__(self, jsonBaseDeDatos: dict):
         self.conexion = Conexion(jsonBaseDeDatos)
 
+    def getUsuario(self, mail):
+        try:
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (mail))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="Usuario no encontrado")
+            return usuario[0]
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error interno")
+
+
+    def getRoles(self):
+        try:
+            roles = self.conexion.sQueryGET("SELECT * FROM tipo_usuarios")
+            if not roles:
+                raise HTTPException(status_code=404, detail="No se encontraron roles")
+            return roles
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
     # Boseto de creacion de funciones 
     """
     def nombre_funcion(self, params):

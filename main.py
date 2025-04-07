@@ -65,6 +65,13 @@ def eliminar_usuario(email: str, user_data: TokenData = Depends(role_required(["
 def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.changeRol(email, rol)
 
+
+# Obtener informacion reelvante al desarrollo de la aplicacion
+
 @app.get("/user/{email}")
 def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
-    return securitySesion.getUsusrio(email)
+    return dataSourceSesion.getUsuario(email)
+
+@app.get("/user-roles")
+def obtener_roles():
+    return dataSourceSesion.getRoles()

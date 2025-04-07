@@ -121,15 +121,6 @@ class Security:
         except HTTPException as e:
             raise e
 
-    def getUsusrio(self, mail):
-        try:
-            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (mail))
-            if not usuario:
-                raise HTTPException(status_code=404, detail="Usuario no encontrado")
-            return usuario[0]
-        except Exception as e:
-            raise HTTPException(status_code=500, detail="Error interno")
-
     def changeRol(self, email: str, rol: int):
         try:
             # Verificar que el usuario exista
