@@ -91,3 +91,8 @@ def crear_necesidad(nombre: str, descripcion: str, tipos: TiposNecesidades, user
     return dataSourceSesion.crearNecesidad(user_data.email, nombre, descripcion, tipos.tipos_necesidad)
 
 
+# Endpoints relacionados a aliados
+
+@app.post("/aliado/relacionar-tipos-necesidades", tags=["Aliado"])
+def relacionar_tipos_necesidades(tipos: TiposNecesidades, user_data: TokenData = Depends(role_required(["Aliado"]))):
+    return dataSourceSesion.relacionarAliadoTipos(user_data.email, tipos.tipos_necesidad)

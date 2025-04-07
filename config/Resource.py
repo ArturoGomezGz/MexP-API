@@ -59,7 +59,6 @@ class Resource:
             if not rol or rol != '2':
                 raise HTTPException(status_code=403, detail="El usuario no tiene permisos para crear necesidades")
 
-
             # Crea la necesidad
             necesidad = self.conexion.sQueryGET("SELECT public.crear_necesidad(?,?,?)", (correo, nombre, descripcion))
             if not necesidad:
@@ -108,7 +107,32 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
         
-
+    def relacionarAliadoTipos(self, correo_aliado, tipos):
+        try:
+            # Verifica si el aliado existe
+            aliado = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo_aliado,))
+            if not aliado:
+                raise HTTPException(status_code=404, detail="Aliado no encontrado")
+            
+            for tipo_id in tipos:
+                # Verifica si el tipo existe
+                tipo_data = self.conexion.sQueryGET("SELECT * FROM obtener_tipo_necesidad(?)", (tipo_id,))
+                if not tipo_data:
+                    raise HTTPException(status_code=404, detail="Tipo no encontrado")
+                
+                # Relaciona el aliado con el tipo
+                relacion = self.conexion.sQueryGET("SELECT * FROM relacionar_aliado_tipo(?,?)", (correo_aliado, tipo_id))
+                if not relacion:
+                    raise HTTPException(status_code=404, detail="No se pudo relacionar el aliado con el tipo")
+                
+            return {"Aliado relacionado con los tipos de necesidad con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
 
     # Boseto de creacion de funciones 
@@ -133,4 +157,3 @@ class Resource:
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
     
     """
-    
