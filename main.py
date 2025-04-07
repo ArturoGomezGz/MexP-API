@@ -5,6 +5,9 @@ from fastapi import FastAPI, Depends, HTTPException, Security
 from config.models.User import UserCreate
 from config.config import securitySesion, dataSourceSesion, authScheme, SHOW_ADMIN_ROUTES
 
+# Modelos
+from config.models.TiposNecesidades import TiposNecesidades
+
 # Desplegar con:
 #   uvicorn main:app --reload
 #   uvicorn main:app --host localhost --port 8100 --reload
@@ -69,9 +72,22 @@ def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_requir
 # Obtener informacion reelvante al desarrollo de la aplicacion
 
 @app.get("/user/{email}")
-def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
+def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getUsuario(email)
 
 @app.get("/user-roles")
-def obtener_roles():
+def obtener_roles(user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getRoles()
+
+@app.get("/tipos-necesidades")
+def obtener_tipos_necesidades(user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.getTiposNecesidades()
+
+
+# Endpoints relacionados a escuelas
+
+@app.post("/escuela/crear-necesidad", tags=["Escuela"])
+def crear_necesidad(nombre: str, descripcion: str, tipos: TiposNecesidades, user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.crearNecesidad(user_data.email, nombre, descripcion, tipos.tipos_necesidad)
+
+

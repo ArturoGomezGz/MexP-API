@@ -32,6 +32,84 @@ class Resource:
         except Exception as e:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+    
+    def getTiposNecesidades(self):
+        try:
+            tipos = self.conexion.sQueryGET("SELECT * FROM obtener_todos_tipos_necesidades()")
+            if not tipos:
+                raise HTTPException(status_code=404, detail="No se encontraron tipos de necesidad")
+            return tipos
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+
+    def crearNecesidad(self, correo, nombre, descripcion, tipos):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="Usuario no encontrado")
+            
+            # Verifica si el usuario tiene el rol de escuela
+            rol = self.conexion.sQueryGET("SELECT obtener_tipo_usuario_por_correo(?)", (correo))[0]['obtener_tipo_usuario_por_correo']
+            if not rol or rol != '2':
+                raise HTTPException(status_code=403, detail="El usuario no tiene permisos para crear necesidades")
+
+
+            # Crea la necesidad
+            necesidad = self.conexion.sQueryGET("SELECT public.crear_necesidad(?,?,?)", (correo, nombre, descripcion))
+            if not necesidad:
+                raise HTTPException(status_code=404, detail="No se pudo crear la necesidad")
+            
+            id_necesidad = necesidad[0]['crear_necesidad']
+
+            # Relaciona la necesidad con los tipos
+            for tipo in tipos:
+                relacion = self.relacionarNecesidadTipo(id_necesidad, tipo)
+                if not relacion:
+                    raise HTTPException(status_code=404, detail="No se pudo relacionar la necesidad con el tipo")
+                
+            return {"Necesidad creada y relacionada con exito" }
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def relacionarNecesidadTipo(self, id_necesidad, id_tipo):
+        try:
+            # Verifica si la necesidad existe
+            necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad))
+            if not necesidad:
+                raise HTTPException(status_code=404, detail="Necesidad no encontrada")
+            
+            # Verifica si el tipo existe
+            tipo = self.conexion.sQueryGET("SELECT * FROM obtener_tipo_necesidad(?)", (id_tipo))
+            if not tipo:
+                raise HTTPException(status_code=404, detail="Tipo no encontrado")
+
+            # Relaciona la necesidad con el tipo
+            relacion = self.conexion.sQueryGET("SELECT public.relacionar_necesidad_tipo(?,?)", (id_necesidad, id_tipo))
+            if not relacion:
+                raise HTTPException(status_code=404, detail="No se pudo relacionar la necesidad con el tipo")
+            
+            return True
+    
+        except (HTTPException, Exception) as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+        
+
+
 
     # Boseto de creacion de funciones 
     """
