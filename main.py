@@ -4,6 +4,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import FastAPI, Depends, HTTPException, Security
 from config.models.User import UserCreate
 from config.config import securitySesion, dataSourceSesion, authScheme, SHOW_ADMIN_ROUTES
+from fastapi.middleware.cors import CORSMiddleware
 
 # Modelos
 from config.models.TiposNecesidades import TiposNecesidades
@@ -28,6 +29,19 @@ def role_required(allowed_roles: List[str] = ["Administrador","Escuela","Aliado"
     return role_checker
 
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Especifica los dominios permitidos
+    allow_credentials=True,
+    allow_methods=["*"],  # Puedes especificar métodos permitidos
+    allow_headers=["*"],  # Puedes especificar headers permitidos
+)
+
 
 @app.get("/", tags=["General"])
 def wellcome():
