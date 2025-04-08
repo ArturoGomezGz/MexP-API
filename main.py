@@ -91,7 +91,7 @@ def obtener_tipos_necesidades(user_data: TokenData = Depends(role_required())):
 def crear_necesidad(nombre: str, descripcion: str, tipos: TiposNecesidades, user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.crearNecesidad(user_data.email, nombre, descripcion, tipos.tipos_necesidad)
 
-@app.get("/escuela/relacionar-aliados", tags=["Escuela"])
+@app.get("/escuela/vincular-aliados", tags=["Escuela"])
 def relacionar_aliados(necesidad: int, user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.relacionarEscuelaAliado(user_data.email, necesidad)
 
@@ -101,6 +101,6 @@ def relacionar_aliados(necesidad: int, user_data: TokenData = Depends(role_requi
 def relacionar_tipos_necesidades(tipos: TiposNecesidades, user_data: TokenData = Depends(role_required(["Aliado"]))):
     return dataSourceSesion.relacionarAliadoTipos(user_data.email, tipos.tipos_necesidad)
 
-@app.get("/aliado/relacionar-escuelas", tags=["Aliado"])
+@app.get("/aliado/vincular-escuelas", tags=["Aliado"])
 def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"]))):
     return dataSourceSesion.relacionarAliadoEscuela(user_data.email)
