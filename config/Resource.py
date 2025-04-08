@@ -134,6 +134,45 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
+    def relacionarEscuelaAliado(self, correo, necesidad):
+        try:
+            if necesidad != 0:
+                # Verifica si la necesidad existe
+                necesidad_data = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (necesidad,))
+                if not necesidad_data:
+                    raise HTTPException(status_code=404, detail="Necesidad no encontrada")
+            
+            # Relaciona la necesidad con el aliado
+            relaciones = self.conexion.sQueryGET("SELECT * FROM obtener_r_escuela_aliado(?,?);", (correo, necesidad))
+            print(correo, necesidad)
+            if not relaciones:
+                raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
+            
+            return relaciones 
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def relacionarAliadoEscuela(self, correo):
+        try:
+            # Relaciona el aliado con la escuela
+            relaciones = self.conexion.sQueryGET("SELECT * FROM obtener_r_aliado_escuela(?);", (correo))
+            if not relaciones:
+                raise HTTPException(status_code=404, detail="No existen relaciones entre el aliado y alguna escuela")
+            
+            return relaciones 
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
 
     # Boseto de creacion de funciones 
     """
