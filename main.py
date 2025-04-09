@@ -127,6 +127,6 @@ def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"])
 def crear_notificacion(notificacion: Notificacion, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return dataSourceSesion.crearNotificacion(notificacion.email, notificacion.mensaje)
 
-@app.get("/usuario/notificacioes", tags=["Notificaciones"])
+@app.get("/usuario/notificaciones", tags=["Notificaciones"])
 def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.obtenerNotificaciones(user_data.email, todos)
