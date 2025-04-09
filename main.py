@@ -99,10 +99,6 @@ def obtener_roles(user_data: TokenData = Depends(role_required())):
 def obtener_tipos_necesidades(user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getTiposNecesidades()
 
-@app.post("/notificacion/crear", tags=["Notificaciones"])
-def crear_notificacion(notificacion: Notificacion, user_data: TokenData = Depends(role_required(["Administrador"]))):
-    return dataSourceSesion.crearNotificacion(notificacion.email, notificacion.mensaje)
-
 
 # Endpoints relacionados a escuelas
 
@@ -125,6 +121,12 @@ def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"])
     return dataSourceSesion.relacionarAliadoEscuela(user_data.email)
 
 
-@app.get("/usuario/notificacioes", tags=["Usuario", "Notificaciones"])
+# Endpoints relacionados a notificaciones
+
+@app.post("/notificacion/crear", tags=["Notificaciones"])
+def crear_notificacion(notificacion: Notificacion, user_data: TokenData = Depends(role_required(["Administrador"]))):
+    return dataSourceSesion.crearNotificacion(notificacion.email, notificacion.mensaje)
+
+@app.get("/usuario/notificacioes", tags=["Notificaciones"])
 def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.obtenerNotificaciones(user_data.email, todos)
