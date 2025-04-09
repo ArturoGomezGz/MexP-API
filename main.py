@@ -130,3 +130,7 @@ def crear_notificacion(notificacion: Notificacion, user_data: TokenData = Depend
 @app.get("/usuario/notificaciones", tags=["Notificaciones"])
 def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.obtenerNotificaciones(user_data.email, todos)
+
+@app.post("/notificacion/leido/{valor}", tags=["Notificaciones"])
+def cambiar_leido_notificacion(valor: bool, id_notificacion: int, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.cambiarEstadoNotificacion(user_data.email, id_notificacion, valor)
