@@ -54,14 +54,14 @@ class Security:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
-    def createUser(self, nombre: str, email: str, direccion: str, rol: int, password: str):
+    def createUser(self, nombre: str, email: str, numero: int, direccion: str, rol: int, password: str):
         try:
             # Verificar que el usuario no exista
             if self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (email)):
                 raise HTTPException(status_code=400, detail="Usuario ya existe")
             
             # Crear el usuario
-            self.conexion.sQuery("SELECT insertar_usuario(?, ?, ?, ?, ?);", (nombre, email, direccion, rol, self.hashPwd(password)))
+            self.conexion.sQuery("SELECT insertar_usuario(?, ?, ?, ?, ?, ?);", (nombre, email, numero, direccion, rol, self.hashPwd(password)))
             return {"message": f"Usuario {email} creado exitosamente"}
         except HTTPException as e:
             raise e

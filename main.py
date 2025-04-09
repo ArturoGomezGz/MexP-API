@@ -52,16 +52,16 @@ def get_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     return securitySesion.createToken(form_data.username, form_data.password)
 
 @app.post("/escuela/create", tags=["User Management"])
-def nuevo_usuario(nombre: str, email: str, direccion: str, password: str):
-    return securitySesion.createUser(nombre, email, direccion, 2, password)
+def nuevo_usuario(nombre: str, email: str, numero: int, direccion: str, password: str):
+    return securitySesion.createUser(nombre, email, numero, direccion, 2, password)
 
 @app.post("/aliado/create", tags=["User Management"])
-def nuevo_usuario(nombre: str, email: str, direccion: str, password: str):
-    return securitySesion.createUser(nombre, email, direccion, 3, password)
+def nuevo_usuario(nombre: str, email: str, numero: int, direccion: str, password: str):
+    return securitySesion.createUser(nombre, email, numero, direccion, 3, password)
 
 @app.post("/admin/create", tags=["User Management"])
-def nuevo_usuario(nombre: str, email: str, direccion: str, password: str):
-    return securitySesion.createUser(nombre, email, direccion, 1, password)
+def nuevo_usuario(nombre: str, email: str, numero: int, direccion: str, password: str):
+    return securitySesion.createUser(nombre, email, numero, direccion, 1, password)
 
 @app.delete("/user/delete", tags=["User Management"])
 def eliminar_usuario(user_data: TokenData = Depends(role_required())):
@@ -72,8 +72,8 @@ def change_password(new_password, user_data: TokenData = Depends(role_required()
     return securitySesion.changePassword(user_data.email, new_password)
 
 @app.post("/admin/user/create", tags=["Admin"])
-def nuevo_usuario(nombre: str, email: str, direccion: str, rol: int, password: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
-    return securitySesion.createUser(nombre, email, direccion, rol, password)
+def nuevo_usuario(nombre: str, email: str, numero: int, direccion: str, rol: int, password: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
+    return securitySesion.createUser(nombre, email, numero, direccion, rol, password)
 
 @app.delete("/admin/user/delete", tags=["Admin"])
 def eliminar_usuario(email: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
