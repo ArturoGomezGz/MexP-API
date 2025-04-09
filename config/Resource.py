@@ -173,6 +173,27 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
+    def obtenerNotificaciones(self, email, todos=False):
+        try:
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (email,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+
+            notificaciones = self.conexion.sQueryGET("SELECT * FROM obtener_notificaciones(?)", (email,todos))
+
+            if not notificaciones:
+                raise HTTPException(status_code=404, detail="No se encontraron notificaciones")
+
+            return notificaciones
+
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
     # Boseto de creacion de funciones 
     """

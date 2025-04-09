@@ -118,3 +118,8 @@ def relacionar_tipos_necesidades(tipos: TiposNecesidades, user_data: TokenData =
 @app.get("/aliado/vincular-escuelas", tags=["Aliado"])
 def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"]))):
     return dataSourceSesion.relacionarAliadoEscuela(user_data.email)
+
+
+@app.get("/usuario/{email}/notificacioes", tags=["Usuario"])
+def obtener_notificaciones(email: str, todos: bool):
+    return dataSourceSesion.obtenerNotificaciones(email, todos)
