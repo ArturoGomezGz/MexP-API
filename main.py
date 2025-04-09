@@ -125,6 +125,6 @@ def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"])
     return dataSourceSesion.relacionarAliadoEscuela(user_data.email)
 
 
-@app.get("/usuario/notificacioes", tags=["Usuario"])
+@app.get("/usuario/notificacioes", tags=["Usuario", "Notificaciones"])
 def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.obtenerNotificaciones(user_data.email, todos)
