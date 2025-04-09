@@ -180,7 +180,7 @@ class Resource:
                 raise HTTPException(status_code=404, detail="El usuario no existe")
 
 
-            notificaciones = self.conexion.sQueryGET("SELECT * FROM obtener_notificaciones(?)", (email,todos))
+            notificaciones = self.conexion.sQueryGET("SELECT * FROM obtener_notificaciones(?, ?)", (email,todos))
 
             if not notificaciones:
                 raise HTTPException(status_code=404, detail="No se encontraron notificaciones")
