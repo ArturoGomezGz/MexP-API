@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # Modelos
 from config.models.TiposNecesidades import TiposNecesidades
+from config.models.Notificacion import Notificacion
 
 # Desplegar con:
 #   uvicorn main:app --reload
@@ -97,6 +98,10 @@ def obtener_roles(user_data: TokenData = Depends(role_required())):
 @app.get("/tipos-necesidades")
 def obtener_tipos_necesidades(user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getTiposNecesidades()
+
+@app.post("/notificacion/crear", tags=["Notificaciones"])
+def crear_notificacion(notificacion: Notificacion, user_data: TokenData = Depends(role_required(["Administrador"]))):
+    return dataSourceSesion.crearNotificacion(notificacion.email, notificacion.mensaje)
 
 
 # Endpoints relacionados a escuelas
