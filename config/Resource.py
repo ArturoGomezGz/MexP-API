@@ -147,7 +147,7 @@ class Resource:
             print(correo, necesidad)
             if not relaciones:
                 raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
-            
+
             return relaciones 
         
         except HTTPException as e:
@@ -165,6 +165,43 @@ class Resource:
                 raise HTTPException(status_code=404, detail="No existen relaciones entre el aliado y alguna escuela")
             
             return relaciones 
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def enlazarNecesidadAliado(self, correoEscuela, id_necesidad, correoAliado):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correoEscuela,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            # Verifica si la necesidad existe
+            necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad,))
+            if not necesidad:
+                raise HTTPException(status_code=404, detail="Necesidad no encontrada")
+
+            # Verifica si el aliado existe
+            aliado = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correoAliado,))
+            if not aliado:
+                raise HTTPException(status_code=404, detail="Aliado no encontrado")         
+
+            # Relaciona la necesidad con el aliado
+            relacion = self.conexion.sQueryGET("SELECT * FROM vincular_necesidad_aliado(?,?,?)", (correoEscuela, id_necesidad, correoAliado))
+            if not relacion:
+                raise HTTPException(status_code=404, detail="No se pudo relacionar la necesidad con el aliado")
+
+            # Crear notificacion al aliado
+            self.crearNotificacion(correoAliado, f"Se ha vinculado la necesidad {id_necesidad} con el aliado {correoEscuela}")
+
+            # Crear notificacion a la escuela
+            self.crearNotificacion(correoEscuela, f"Se ha vinculado la necesidad {id_necesidad} con el aliado {correoAliado}")
+            
+            return {"Necesidad relacionada con el aliado con exito"}
         
         except HTTPException as e:
             raise e
