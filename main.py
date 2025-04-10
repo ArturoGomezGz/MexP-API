@@ -144,3 +144,7 @@ def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_requ
 @app.post("/notificacion/leido/{valor}", tags=["Notificaciones"])
 def cambiar_leido_notificacion(valor: bool, id_notificacion: int, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.cambiarEstadoNotificacion(user_data.email, id_notificacion, valor)
+
+@app.post("/aliado/vincular-necesidad/{idNecesidad}", tags=["Aliado"])
+def vincular_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
+    return dataSourceSesion.vincularNecesidadAliado(user_data.email, idNecesidad)
