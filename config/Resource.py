@@ -272,7 +272,7 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
-    def vincularNecesidadAliado(self, email, idNecesidad):
+    def vincularAliadoNecesidad(self, email, idNecesidad):
         try:
             # Verifica si el usuario existe
             usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (email,))

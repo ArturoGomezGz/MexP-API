@@ -146,5 +146,5 @@ def cambiar_leido_notificacion(valor: bool, id_notificacion: int, user_data: Tok
     return dataSourceSesion.cambiarEstadoNotificacion(user_data.email, id_notificacion, valor)
 
 @app.post("/aliado/vincular-necesidad/{idNecesidad}", tags=["Aliado"])
-def vincular_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
-    return dataSourceSesion.vincularNecesidadAliado(user_data.email, idNecesidad)
+def vincular_aliado_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
+    return dataSourceSesion.vincularAliadoNecesidad(user_data.email, idNecesidad)
