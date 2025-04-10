@@ -72,6 +72,8 @@ def eliminar_usuario(user_data: TokenData = Depends(role_required())):
 def change_password(new_password, user_data: TokenData = Depends(role_required())):
     return securitySesion.changePassword(user_data.email, new_password)
 
+# Endpoints relacionados a usuaros administradores
+
 @app.post("/admin/user/create", tags=["Admin"])
 def nuevo_usuario(nombre: str, email: str, numero: int, direccion: str, rol: int, password: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.createUser(nombre, email, numero, direccion, rol, password)
@@ -84,6 +86,9 @@ def eliminar_usuario(email: str, user_data: TokenData = Depends(role_required(["
 def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.changeRol(email, rol)
 
+@app.post("/admin/user/{email}/change-password", tags=["Admin"])
+def cambiar_password(email: str, new_password: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
+    return securitySesion.changePassword(email, new_password)
 
 # Obtener informacion reelvante al desarrollo de la aplicacion
 
