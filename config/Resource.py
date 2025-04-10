@@ -272,6 +272,29 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
+    def vincularAliadoNecesidad(self, email, idNecesidad):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (email,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            # Cambia el estado de la notificacion
+            vinculacion = self.conexion.sQueryGET("SELECT * FROM insertar_r_aliado_necesidad(?, ?)",
+                                                   (email, idNecesidad))
+            if not vinculacion:
+                raise HTTPException(status_code=404, detail="No se pudo vincular la necesidad con el aliado")
+
+            return {"La vinculacion se ha realizado con exito"}
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+
     # Boseto de creacion de funciones 
     """
     def nombre_funcion(self, params):
