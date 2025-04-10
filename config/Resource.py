@@ -295,7 +295,6 @@ class Resource:
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
 
-
     # Boseto de creacion de funciones 
     """
     def nombre_funcion(self, params):

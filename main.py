@@ -129,7 +129,10 @@ def relacionar_tipos_necesidades(tipos: TiposNecesidades, user_data: TokenData =
 @app.get("/aliado/vincular-escuelas", tags=["Aliado"])
 def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"]))):
     return dataSourceSesion.relacionarAliadoEscuela(user_data.email)
-
+  
+@app.post("/aliado/vincular-necesidad/{idNecesidad}", tags=["Aliado"])
+def vincular_aliado_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
+    return dataSourceSesion.vincularAliadoNecesidad(user_data.email, idNecesidad)
 
 # Endpoints relacionados a notificaciones
 
@@ -145,6 +148,3 @@ def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_requ
 def cambiar_leido_notificacion(valor: bool, id_notificacion: int, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.cambiarEstadoNotificacion(user_data.email, id_notificacion, valor)
 
-@app.post("/aliado/vincular-necesidad/{idNecesidad}", tags=["Aliado"])
-def vincular_aliado_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
-    return dataSourceSesion.vincularAliadoNecesidad(user_data.email, idNecesidad)
