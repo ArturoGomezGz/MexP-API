@@ -110,6 +110,11 @@ def crear_necesidad(nombre: str, descripcion: str, tipos: TiposNecesidades, user
 def relacionar_aliados(necesidad: int, user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.relacionarEscuelaAliado(user_data.email, necesidad)
 
+@app.post("/escuela/enlazar-necesidad/{id_necesidad}", tags=["Escuela"])
+def enlazar_necesidad(id_necesidad: int, aliado: str, user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.enlazarNecesidadAliado(user_data.email, id_necesidad, aliado)
+
+
 # Endpoints relacionados a aliados
 
 @app.post("/aliado/relacionar-tipos-necesidades", tags=["Aliado"])
