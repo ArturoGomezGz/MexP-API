@@ -19,7 +19,6 @@ class Resource:
         except Exception as e:
             raise HTTPException(status_code=500, detail="Error interno")
 
-
     def getRoles(self):
         try:
             roles = self.conexion.sQueryGET("SELECT * FROM tipo_usuarios")
@@ -45,7 +44,6 @@ class Resource:
         except Exception as e:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
-
 
     def crearNecesidad(self, correo, nombre, descripcion, tipos):
         try:
