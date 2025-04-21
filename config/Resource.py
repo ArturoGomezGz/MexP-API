@@ -178,7 +178,7 @@ class Resource:
             if not usuario:
                 raise HTTPException(status_code=404, detail="El usuario no existe")
 
-            # Verifica si la necesidad existe
+            # Verifica si la necesidad existe   
             necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad,))
             if not necesidad:
                 raise HTTPException(status_code=404, detail="Necesidad no encontrada")
@@ -186,7 +186,12 @@ class Resource:
             # Verifica si el aliado existe
             aliado = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correoAliado,))
             if not aliado:
-                raise HTTPException(status_code=404, detail="Aliado no encontrado")         
+                raise HTTPException(status_code=404, detail="Aliado no encontrado")   
+
+            # Verifica que el vinculo entre la necesidad es posible 
+            relacion = self.conexion.sQueryGET("SELECT * FROM obtener_r_aliado_necesidad(?,?)", (correoAliado, id_necesidad))      
+            if not relacion:
+                raise HTTPException(status_code=404, detail="No existe una relacion entre el aliado y la necesidad")
 
             # Relaciona la necesidad con el aliado
             relacion = self.conexion.sQueryGET("SELECT * FROM vincular_necesidad_aliado(?,?,?)", (correoEscuela, id_necesidad, correoAliado))

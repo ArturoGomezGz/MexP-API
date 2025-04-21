@@ -1,6 +1,6 @@
 {
     "Master": {
-        "server" : "10.43.108.122",
+        "server" : "10.43.108.189",
         "database" : "MexicanosPrimero",
         "usuario" : "postgres",
         "contrasena" : "Pword76",

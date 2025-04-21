@@ -15,7 +15,12 @@ from config.models.Notificacion import Notificacion
 #   uvicorn main:app --host localhost --port 8100 --reload
 #   uvicorn main:app --host 0.0.0.0 --port 8100 --reload
 #   uvicorn main:app --host 0.0.0.0 --port 8100 --reload > logs/uvicorn.log 2>&1
+
+# Ver logs en tiempo real:
 #   journalctl -u mexicanosPrimeroAPI.service -f
+
+# Resiniciar el servicio:
+#   sudo systemctl restart mexicanosPrimeroAPI.service
 
 # Documentacion:
 #   http://127.0.0.1:8000/docs
