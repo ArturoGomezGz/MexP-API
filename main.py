@@ -97,6 +97,10 @@ def cambiar_password(email: str, new_password: str, user_data: TokenData = Depen
 
 # Obtener informacion reelvante al desarrollo de la aplicacion
 
+@app.get("/user/list")
+def obtener_lista_usuarios(user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.getListaUsuarios()
+
 @app.get("/user/{email}")
 def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getUsuario(email)

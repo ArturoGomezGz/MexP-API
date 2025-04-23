@@ -7,6 +7,18 @@ class Resource:
     def __init__(self, jsonBaseDeDatos: dict):
         self.conexion = Conexion(jsonBaseDeDatos)
 
+    def getListaUsuarios(self):
+        try:
+            usuarios = self.conexion.sQueryGET("SELECT * FROM obtener_usuarios()")
+            if not usuarios:
+                raise HTTPException(status_code=404, detail="No se encontraron usuarios")
+            return usuarios
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error interno")
+
     def getUsuario(self, mail):
         try:
             usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (mail))
