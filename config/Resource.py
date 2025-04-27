@@ -30,6 +30,18 @@ class Resource:
         
         except Exception as e:
             raise HTTPException(status_code=500, detail="Error interno")
+        
+    def getUsuarioPorID(self, id):
+        try:
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario_por_id(?)", (id))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="No se encontraron usuarios")
+            return usuario[0]
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            raise HTTPException(status_code=500, detail="Error interno")
 
     def getRoles(self):
         try:
@@ -311,6 +323,118 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
+    def obtenerNecesidades(self, id_escuela):
+        try:
+
+            # Obtiene las necesidades del usuario
+            necesidades = self.conexion.sQueryGET("SELECT * FROM obtener_necesidades(?)", (id_escuela,))
+            if not necesidades:
+                raise HTTPException(status_code=404, detail="No se encontraron necesidades")
+
+            return necesidades
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def obtenerDireccion(self, id_usuario):
+        try:
+            # Obtiene la direccion del usuario
+            direccion = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (id_usuario,))
+            if not direccion:
+                raise HTTPException(status_code=404, detail="No se encontro la direccion")
+
+            return direccion[0]
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+    
+    def setDireccion(self, id_usuario, latitud, longitud):
+        try:
+
+            # Crea la direccion
+            direccion = self.conexion.sQueryGET("SELECT * FROM set_latitud_longitud(?, ?, ?)", (id_usuario, latitud, longitud))
+            if not direccion:
+                raise HTTPException(status_code=404, detail="No se pudo crear la direccion")
+            
+            return {"Coordenadas guardadas con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def setDescripcionUsuario(self, correo, descripcion):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            # Cambia la descripcion del usuario
+            descripcion = self.conexion.sQueryGET("SELECT * FROM set_descripcion_usuario(?, ?)", (correo, descripcion))
+            if not descripcion:
+                raise HTTPException(status_code=404, detail="No se pudo cambiar la descripcion del usuario")
+            
+            return {"Descripcion cambiada con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def obtenerNecesidadesEnlazadasEscuela(self, correo):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            # Obtiene las necesidades enlazadas
+            necesidades = self.conexion.sQueryGET("SELECT * FROM obtener_necesidades_enlazadas_escuela(?)", (correo,))
+            if not necesidades:
+                raise HTTPException(status_code=404, detail="No se encontraron necesidades enlazadas")
+
+            return necesidades
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+        
+    def obtenerNecesidadesEnlazadasAliado(self, correo):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            # Obtiene las necesidades enlazadas
+            necesidades = self.conexion.sQueryGET("SELECT * FROM obtener_necesidades_enlazadas_aliado(?)", (correo,))
+            if not necesidades:
+                raise HTTPException(status_code=404, detail="No se encontraron necesidades enlazadas")
+
+            return necesidades
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
     # Boseto de creacion de funciones 
     """
