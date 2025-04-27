@@ -77,6 +77,10 @@ def eliminar_usuario(user_data: TokenData = Depends(role_required())):
 def change_password(new_password, user_data: TokenData = Depends(role_required())):
     return securitySesion.changePassword(user_data.email, new_password)
 
+@app.post("/descripcion/usuario", tags=["User Management"])
+def crear_descripcion_usuario(descripcion: str, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.setDescripcionUsuario(user_data.email, descripcion)
+
 # Endpoints relacionados a usuaros administradores
 
 @app.post("/admin/user/create", tags=["Admin"])
@@ -105,6 +109,10 @@ def obtener_lista_usuarios(user_data: TokenData = Depends(role_required())):
 def obtener_informacion_usuario(email: str, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getUsuario(email)
 
+@app.get("/user/id/{id}")
+def obtener_informacion_usuario(id: int, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.getUsuarioPorID(id)
+
 @app.get("/user-roles")
 def obtener_roles(user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getRoles()
@@ -113,6 +121,17 @@ def obtener_roles(user_data: TokenData = Depends(role_required())):
 def obtener_tipos_necesidades(user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.getTiposNecesidades()
 
+@app.get("/escuela/obtener-necesidades/{id_escuela}")
+def obtener_necesidades(id_escuela: int, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.obtenerNecesidades(id_escuela)
+
+@app.get("/direccion/usuario/{id_usuario}")
+def obtener_direccion_usuario(id_usuario: int, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.obtenerDireccion(id_usuario)
+
+@app.post("/direccion/usuario")
+def crear_direccion(id_usuario ,latitud, longitud, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.setDireccion(id_usuario, latitud, longitud)
 
 # Endpoints relacionados a escuelas
 
@@ -128,6 +147,9 @@ def relacionar_aliados(necesidad: int, user_data: TokenData = Depends(role_requi
 def enlazar_necesidad(id_necesidad: int, aliado: str, user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.enlazarNecesidadAliado(user_data.email, id_necesidad, aliado)
 
+@app.get("/escuela/necesidades-enlazadas", tags=["Escuela"])
+def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.obtenerNecesidadesEnlazadasEscuela(user_data.email)
 
 # Endpoints relacionados a aliados
 
@@ -143,6 +165,10 @@ def relacionar_escuelas(user_data: TokenData = Depends(role_required(["Aliado"])
 def vincular_aliado_necesidad(idNecesidad: int, user_data: TokenData = Depends(role_required(["Aliado"]))):
     return dataSourceSesion.vincularAliadoNecesidad(user_data.email, idNecesidad)
 
+@app.get("/aliado/necesidades-vinculadas", tags=["Aliado"])
+def obtener_necesidades_vinculadas(user_data: TokenData = Depends(role_required(["Aliado"]))):
+    return dataSourceSesion.obtenerNecesidadesEnlazadasAliado(user_data.email)
+
 # Endpoints relacionados a notificaciones
 
 @app.post("/notificacion/crear", tags=["Notificaciones"])
@@ -156,4 +182,5 @@ def obtener_notificaciones(todos: bool, user_data: TokenData = Depends(role_requ
 @app.post("/notificacion/leido/{valor}", tags=["Notificaciones"])
 def cambiar_leido_notificacion(valor: bool, id_notificacion: int, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.cambiarEstadoNotificacion(user_data.email, id_notificacion, valor)
+
 
