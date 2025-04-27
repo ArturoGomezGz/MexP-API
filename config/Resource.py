@@ -172,7 +172,10 @@ class Resource:
             
             # Relaciona la necesidad con el aliado
             relaciones = self.conexion.sQueryGET("SELECT * FROM obtener_r_escuela_aliado(?,?);", (correo, necesidad))
-            print(correo, necesidad)
+            
+            idUsuario = self.conexion.sQueryGET("SELECT id_usuario FROM obtener_usuario(?)", (correo,))[0]['id_usuario']
+            coordenadasUsuario = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (idUsuario,))[0]
+            
             if not relaciones:
                 raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
 
