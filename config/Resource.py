@@ -2,10 +2,16 @@ from config.Conexion import Conexion
 from fastapi import HTTPException
 from fastapi.responses import JSONResponse
 import logging
+import math
 
 class Resource:
     def __init__(self, jsonBaseDeDatos: dict):
         self.conexion = Conexion(jsonBaseDeDatos)
+
+
+    # Ecuacion para calcular la distancia entre dos puntos
+    def distancia_euclidiana(self, x1, y1, x2, y2):
+        return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
     def getListaUsuarios(self):
         try:
@@ -213,7 +219,7 @@ class Resource:
                 raise HTTPException(status_code=404, detail="Aliado no encontrado")   
 
             # Verifica que el vinculo entre la necesidad es posible 
-            relacion = self.conexion.sQueryGET("SELECT * FROM obtener_r_aliado_necesidad(?,?)", (correoAliado, id_necesidad))      
+            relacion = self.conexion.sQueryGET("SELECT * FROM obtener_r_aliado_necesidad(?,?)", (correoAliado, id_necesidad))
             if not relacion:
                 raise HTTPException(status_code=404, detail="No existe una relacion entre el aliado y la necesidad")
 
