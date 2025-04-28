@@ -151,6 +151,10 @@ def enlazar_necesidad(id_necesidad: int, aliado: str, user_data: TokenData = Dep
 def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.obtenerNecesidadesEnlazadasEscuela(user_data.email)
 
+@app.get("/escuela/necesidades-enlazadas", tags=["Escuela"])
+def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.obtenerNecesidadesEnlazadasEscuela(user_data.email)
+
 # Endpoints relacionados a aliados
 
 @app.post("/aliado/relacionar-tipos-necesidades", tags=["Aliado"])

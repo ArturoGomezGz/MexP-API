@@ -13,6 +13,32 @@ class Resource:
     def distancia_euclidiana(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
+    def valor_distancia_pripridad(self, coordenadas_escuela, relacion):
+        # Factores de importancias
+        importancia_distancia = 0.5
+        importancia_prioridad = 0.5
+
+        # Extraer las coordenadas de la escuela 
+        latitud_escuela = coordenadas_escuela['latitud']
+        longitud_escuela = coordenadas_escuela['longitud']
+
+        # Extraer id del aliado
+        id_aliado = self.squeryGET("SELECT * FROM obtener_usuario(?)", (relacion['correo_aliado'],))[0]['id']
+
+        # Extraer prioridad de la relacion
+        prioridad = relacion['prioridad']
+
+        # Extraer las coordenadas del aliado
+        coordenadas_aliado = self.squeryGET("SELECT * FROM obtener_direccion(?)", (id_aliado,))[0]
+        latitud_aliado = coordenadas_aliado['latitud']
+        longitud_aliado = coordenadas_aliado['longitud']
+
+        # Calcular la distancia entre la escuela y el aliado
+        distancia = self.distancia_euclidiana(latitud_escuela, longitud_escuela, latitud_aliado, longitud_aliado)
+
+        # Calcular el valor final
+        return (importancia_prioridad(prioridad/(prioridad + 1))) - (importancia_distancia(distancia/(distancia + 1)))
+        
     def getListaUsuarios(self):
         try:
             usuarios = self.conexion.sQueryGET("SELECT * FROM obtener_usuarios()")
@@ -173,8 +199,13 @@ class Resource:
             # Relaciona la necesidad con el aliado
             relaciones = self.conexion.sQueryGET("SELECT * FROM obtener_r_escuela_aliado(?,?);", (correo, necesidad))
             
-            idUsuario = self.conexion.sQueryGET("SELECT id_usuario FROM obtener_usuario(?)", (correo,))[0]['id_usuario']
-            coordenadasUsuario = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (idUsuario,))[0]
+            idUsuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))[0]['id']
+            Coordenadas_escuela = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (idUsuario,))[0]
+            # latitud / longitud / prioridad
+
+
+
+            
             
             if not relaciones:
                 raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
@@ -433,6 +464,30 @@ class Resource:
 
             # Obtiene las necesidades enlazadas
             necesidades = self.conexion.sQueryGET("SELECT * FROM obtener_necesidades_enlazadas_aliado(?)", (correo,))
+            if not necesidades:
+                raise HTTPException(status_code=404, detail="No se encontraron necesidades enlazadas")
+
+            return necesidades
+
+        except HTTPException as e:
+            raise e
+
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def obtenerNecesidadesEnlazadasEscuela(self, correo):
+        try:
+            # Verifica si el usuario existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))
+            if not usuario:
+                raise HTTPException(status_code=404, detail="El usuario no existe")
+
+            id_usuario = usuario[0]['id']
+
+            # Obtiene las necesidades enlazadas
+            necesidades = self.conexion.sQueryGET("SELECT * FROM obtener_necesidades_enlazadas(?)", (id_usuario,))
+
             if not necesidades:
                 raise HTTPException(status_code=404, detail="No se encontraron necesidades enlazadas")
 
