@@ -19,25 +19,25 @@ class Resource:
         importancia_prioridad = 0.5
 
         # Extraer las coordenadas de la escuela 
-        latitud_escuela = coordenadas_escuela['latitud']
-        longitud_escuela = coordenadas_escuela['longitud']
+        latitud_escuela = float(coordenadas_escuela['latitud'])
+        longitud_escuela = float(coordenadas_escuela['longitud'])
 
         # Extraer id del aliado
-        id_aliado = self.squeryGET("SELECT * FROM obtener_usuario(?)", (relacion['correo_aliado'],))[0]['id']
+        id_aliado = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (relacion['correo_aliado'],))[0]['id']
 
         # Extraer prioridad de la relacion
-        prioridad = relacion['prioridad']
+        prioridad = int(relacion['prioridad'])
 
         # Extraer las coordenadas del aliado
-        coordenadas_aliado = self.squeryGET("SELECT * FROM obtener_direccion(?)", (id_aliado,))[0]
-        latitud_aliado = coordenadas_aliado['latitud']
-        longitud_aliado = coordenadas_aliado['longitud']
+        coordenadas_aliado = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (id_aliado,))[0]
+        latitud_aliado = float(coordenadas_aliado['latitud'])
+        longitud_aliado = float(coordenadas_aliado['longitud'])
 
         # Calcular la distancia entre la escuela y el aliado
         distancia = self.distancia_euclidiana(latitud_escuela, longitud_escuela, latitud_aliado, longitud_aliado)
-
+        print(distancia)
         # Calcular el valor final
-        return (importancia_prioridad(prioridad/(prioridad + 1))) - (importancia_distancia(distancia/(distancia + 1)))
+        return (importancia_prioridad*(prioridad/(prioridad + 1))) - (importancia_distancia*(distancia/(distancia + 1)))
         
     def getListaUsuarios(self):
         try:
@@ -198,19 +198,30 @@ class Resource:
             
             # Relaciona la necesidad con el aliado
             relaciones = self.conexion.sQueryGET("SELECT * FROM obtener_r_escuela_aliado(?,?);", (correo, necesidad))
-            
+            if not relaciones:
+                raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
+
             idUsuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))[0]['id']
             Coordenadas_escuela = self.conexion.sQueryGET("SELECT * FROM obtener_direccion(?)", (idUsuario,))[0]
             # latitud / longitud / prioridad
 
+            sorted_arr = []
 
-
-            
-            
-            if not relaciones:
-                raise HTTPException(status_code=404, detail="No existen relaciones entre la escuela y algun aliado")
-
-            return relaciones 
+            for relacion in relaciones:
+                number = self.valor_distancia_pripridad(Coordenadas_escuela, relacion)
+                
+                # Insert the number in the correct sorted position (mayor a menor)
+                inserted = False
+                for index, value in enumerate(sorted_arr):
+                    if number > value[0]:  # Cambio de < a > para ordenar de mayor a menor
+                        sorted_arr.insert(index, [number, relacion])
+                        inserted = True
+                        break
+                
+                # If the number is smaller than all existing numbers, append it
+                if not inserted:
+                    sorted_arr.append([number, relacion])
+            return sorted_arr 
         
         except HTTPException as e:
             raise e
