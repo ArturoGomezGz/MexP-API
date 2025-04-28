@@ -99,6 +99,14 @@ def cambiar_rol(email: str, rol: int, user_data: TokenData = Depends(role_requir
 def cambiar_password(email: str, new_password: str, user_data: TokenData = Depends(role_required(["Administrador"]))):
     return securitySesion.changePassword(email, new_password)
 
+@app.post("/admin/crear-necesidad", tags=["Admin"])
+def crear_necesidad(correo_escuela: str, nombre: str, descripcion: str, tipos: TiposNecesidades, user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.crearNecesidad(correo_escuela, nombre, descripcion, tipos.tipos_necesidad)
+
+@app.delete("/admin/eliminar-necesidad", tags=["Admin"])
+def eliminar_necesidad(id_necesidad: int, user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.eliminarNecesidad(id_necesidad)
+
 # Obtener informacion reelvante al desarrollo de la aplicacion
 
 @app.get("/user/list")
@@ -154,6 +162,10 @@ def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required([
 @app.get("/escuela/necesidades-enlazadas", tags=["Escuela"])
 def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.obtenerNecesidadesEnlazadasEscuela(user_data.email)
+
+@app.get("/escuela/eliminar-necesidad", tags=["Escuela"])
+def eliminar_necesidad(id_necesidad: int, user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.eliminarNecesidadEscuela(user_data.email, id_necesidad)
 
 # Endpoints relacionados a aliados
 

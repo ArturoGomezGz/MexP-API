@@ -500,6 +500,50 @@ class Resource:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
 
+    def eliminarNecesidad(self, id_necesidad):
+        try:
+            # Verifica si la necesidad existe
+            necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad,))
+            if not necesidad:
+                raise HTTPException(status_code=404, detail="Necesidad no encontrada")
+
+            # Elimina la necesidad
+            necesidad = self.conexion.sQueryGET("SELECT * FROM eliminar_necesidad(?)", (id_necesidad,))
+            
+            return {"Necesidad eliminada con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def eliminarNecesidadEscuela(self, correo_escuela, id_necesidad):
+        try:
+            # Verifica si la necesidad existe
+            necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad,))
+            if not necesidad:
+                raise HTTPException(status_code=404, detail="Necesidad no encontrada")
+
+            id_usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo_escuela,))[0]['id']
+            
+            # Verifica si la necesidad pertenece a la escuela
+            if necesidad["id_escuela"] != id_usuario:
+                raise HTTPException(status_code=403, detail="La necesidad no pertenece a la escuela")
+
+            # Elimina la necesidad
+            necesidad = self.conexion.sQueryGET("SELECT * FROM eliminar_necesidad(?)", (id_necesidad,))
+            
+            return {"Necesidad eliminada con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
     # Boseto de creacion de funciones 
     """
     def nombre_funcion(self, params):
