@@ -22,8 +22,10 @@ BEGIN
     RETURN QUERY 
     SELECT v.id_escuela, v.escuela, v.id_necesidad, v.necesidad, v.aliado, v.id_aliado, v.prioridad, v.correo_aliado
     FROM vr_escuela_aliado AS v
+	JOIN necesidades AS n ON n.id = v.id_necesidad
     WHERE v.id_escuela = v_id_escuela 
     AND (p_id_necesidad = 0 OR v.id_necesidad = p_id_necesidad)
+	AND n.id_aliado IS NULL
     ORDER BY v.prioridad DESC;
 END;
 $BODY$;

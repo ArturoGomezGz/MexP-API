@@ -187,7 +187,7 @@ class Resource:
         except Exception as e:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
-
+#HEEEEREEE
     def relacionarEscuelaAliado(self, correo, necesidad):
         try:
             if necesidad != 0:
@@ -351,7 +351,7 @@ class Resource:
         except Exception as e:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
-
+#HEEEEREEEE MANDAR SOLICITUD
     def vincularAliadoNecesidad(self, email, idNecesidad):
         try:
             # Verifica si el usuario existe
@@ -537,6 +537,8 @@ class Resource:
             if not necesidad:
                 raise HTTPException(status_code=404, detail="Necesidad no encontrada")
 
+            necesidad = necesidad[0]
+
             id_usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo_escuela,))[0]['id']
             
             # Verifica si la necesidad pertenece a la escuela
@@ -544,9 +546,8 @@ class Resource:
                 raise HTTPException(status_code=403, detail="La necesidad no pertenece a la escuela")
 
             # Elimina la necesidad
-            necesidad = self.conexion.sQueryGET("SELECT * FROM eliminar_necesidad(?)", (id_necesidad,))
-            
-            return {"Necesidad eliminada con exito"}
+            result = self.conexion.sQueryGET("SELECT * FROM eliminar_necesidad(?)", (id_necesidad,))
+            return {f"id_necesidad {id_necesidad} eliminado"}
         
         except HTTPException as e:
             raise e
@@ -554,6 +555,43 @@ class Resource:
         except Exception as e:
             logging.error(f"Error al ejecutar la función: {str(e)}")
             raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def obtenerNumeroTelefono(self, id_usuario):
+        try:
+            # Verifica si la necesidad existe
+            telefono = self.conexion.sQueryGET("SELECT * FROM obtener_telefono(?)", (id_usuario,))
+            if not telefono:
+                raise HTTPException(status_code=404, detail="Usuario no encontrado")
+            
+            return telefono[0]
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
+    def rechazarApoyoAliado(self, correo, id_necesidad, correo_aliado):
+        try:
+            # Verifica si la necesidad existe
+            usuario = self.conexion.sQueryGET("SELECT * FROM obtener_usuario(?)", (correo,))[0]
+            necesidad = self.conexion.sQueryGET("SELECT * FROM obtener_necesidad(?)", (id_necesidad,))[0]
+                
+            if usuario["id"] == necesidad["id_necesidad"]:
+                raise HTTPException(status_code=404, detail="Na necesidad no pertenece a este usuario")
+            
+            self.conexion.sQueryGET("SELECT * FROM eliminar_aliado_necesidad(?, ?)", (correo_aliado, id_necesidad))
+
+            return {"Apoyo rechazada con exito"}
+        
+        except HTTPException as e:
+            raise e
+        
+        except Exception as e:
+            logging.error(f"Error al ejecutar la función: {str(e)}")
+            raise HTTPException(status_code=500, detail="Error al ejecutar la función")
+
 
     # Boseto de creacion de funciones 
     """

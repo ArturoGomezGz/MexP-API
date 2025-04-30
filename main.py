@@ -141,6 +141,10 @@ def obtener_direccion_usuario(id_usuario: int, user_data: TokenData = Depends(ro
 def crear_direccion(id_usuario ,latitud, longitud, user_data: TokenData = Depends(role_required())):
     return dataSourceSesion.setDireccion(id_usuario, latitud, longitud)
 
+@app.get("/usuario/telefono")
+def obtener_telefono_usuario(id_usuario: int, user_data: TokenData = Depends(role_required())):
+    return dataSourceSesion.obtenerNumeroTelefono(id_usuario)
+
 # Endpoints relacionados a escuelas
 
 @app.post("/escuela/crear-necesidad", tags=["Escuela"])
@@ -166,6 +170,10 @@ def obtener_necesidades_enlazadas(user_data: TokenData = Depends(role_required([
 @app.get("/escuela/eliminar-necesidad", tags=["Escuela"])
 def eliminar_necesidad(id_necesidad: int, user_data: TokenData = Depends(role_required(["Escuela"]))):
     return dataSourceSesion.eliminarNecesidadEscuela(user_data.email, id_necesidad)
+
+@app.get("/escuela/rechazar-apoyo/{idNecesidad}", tags=["Escuela"])
+def rechazar_apoyo(idNecesidad: int, correo_aliado: str ,user_data: TokenData = Depends(role_required(["Escuela"]))):
+    return dataSourceSesion.rechazarApoyoAliado(user_data.email, idNecesidad, correo_aliado)
 
 # Endpoints relacionados a aliados
 
